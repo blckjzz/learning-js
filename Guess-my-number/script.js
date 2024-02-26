@@ -89,7 +89,7 @@ Start game
 
 function starGame() {
   dice = rollDice();
-  console.log('dice: ' + dice);
+  // console.log('dice: ' + dice);
   //   document.querySelector('.score').textContent = score;
   document.querySelector('.highscore').textContent =
     localStorage.getItem('score');
