@@ -25,6 +25,9 @@ function verifyWin(guess, dice) {
   if (guess === dice) {
     // Won the game .number
     document.querySelector('.message').textContent = 'You win!';
+
+    // set background-collor to green when player win's the game.
+    document.querySelector('body').style.backgroundColor = '#60b347';
     document.querySelector('.number').textContent = dice;
     setHighestScore(score);
     document.querySelector('.highscore').textContent =
@@ -106,16 +109,23 @@ function starGame() {
         showTip(guess);
       }
     }
-    console.log(`Score: ${score}, Guess: ${guess}, GameEnd?: ${gameEnd}`);
+    // console.log(`Score: ${score}, Guess: ${guess}, GameEnd?: ${gameEnd}`);
   });
+}
+function changeBackgroundColor(gameEnd) {
+  let color;
+  gameEnd === false ? (color = '#222') : (color = '#60b347');
+  document.querySelector('body').style.backgroundColor = color;
 }
 
 addEventListener('load', function () {
   cleanScore();
+  changeBackgroundColor(gameEnd);
   starGame();
 });
 
 document.querySelector('.again').addEventListener('click', function () {
   console.log('clicou no again');
   resetGame();
+  changeBackgroundColor(gameEnd);
 });
