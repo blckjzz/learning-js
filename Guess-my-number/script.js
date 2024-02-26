@@ -37,10 +37,10 @@ function verifyWin(guess, dice) {
     // you lost  because you ran out of chances.
     console.log('Chegou em zero' + score);
     gameEnd = true;
-    // document.querySelector('.message').textContent = "You're lose!";
     document.querySelector('.message').textContent = 'You lost! =)';
   } else {
     keepScore();
+    showTip(guess);
   }
 }
 
@@ -109,7 +109,6 @@ function starGame() {
         showTip(guess);
       }
     }
-    // console.log(`Score: ${score}, Guess: ${guess}, GameEnd?: ${gameEnd}`);
   });
 }
 function changeBackgroundColor(gameEnd) {
@@ -125,7 +124,6 @@ addEventListener('load', function () {
 });
 
 document.querySelector('.again').addEventListener('click', function () {
-  console.log('clicou no again');
   resetGame();
   changeBackgroundColor(gameEnd);
 });
