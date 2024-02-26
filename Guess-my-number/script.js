@@ -25,16 +25,18 @@ function verifyWin(guess, dice) {
     document.querySelector('.message').textContent = 'You win!';
 
     // set background-collor to green when player win's the game.
-    document.querySelector('body').style.backgroundColor = '#60b347';
+    // document.querySelector('body').style.backgroundColor = '#60b347';
     document.querySelector('.number').textContent = dice;
     setHighestScore(score);
     document.querySelector('.highscore').textContent =
       localStorage.getItem('score');
     gameEnd = true;
+    changeBackgroundColor(gameEnd);
   } else if (score === 0) {
     // you lost  because you ran out of chances.
     gameEnd = true;
     document.querySelector('.message').textContent = 'You lost! =)';
+    changeBackgroundColor(gameEnd, 'red');
   } else {
     keepScore();
     showTip(guess);
@@ -87,6 +89,7 @@ Start game
 
 function starGame() {
   dice = rollDice();
+  console.log('dice: ' + dice);
   //   document.querySelector('.score').textContent = score;
   document.querySelector('.highscore').textContent =
     localStorage.getItem('score');
@@ -103,9 +106,10 @@ function starGame() {
     }
   });
 }
-function changeBackgroundColor(gameEnd) {
-  let color;
-  gameEnd === false ? (color = '#222') : (color = '#60b347');
+function changeBackgroundColor(gameEnd, color) {
+  if (!color) {
+    gameEnd === false ? (color = '#222') : (color = '#60b347');
+  }
   document.querySelector('body').style.backgroundColor = color;
 }
 
