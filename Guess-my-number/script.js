@@ -16,12 +16,10 @@ let guess = 0;
 
 function keepScore() {
   score--;
-  // console.log(`Score: ${score}`);
   document.querySelector('.score').textContent = score;
 }
 
 function verifyWin(guess, dice) {
-  // console.log(dice === guess ? 'Sim:' + guess : 'Não: ' + guess);
   if (guess === dice) {
     // Won the game .number
     document.querySelector('.message').textContent = 'You win!';
@@ -35,7 +33,6 @@ function verifyWin(guess, dice) {
     gameEnd = true;
   } else if (score === 0) {
     // you lost  because you ran out of chances.
-    console.log('Chegou em zero' + score);
     gameEnd = true;
     document.querySelector('.message').textContent = 'You lost! =)';
   } else {
@@ -64,12 +61,10 @@ function rollDice() {
   let min = 1;
   let max = 20;
   dice = Math.floor(Math.random() * (max - min) + min);
-  console.log(dice);
   return dice;
 }
 
 function resetGame() {
-  console.log('..........Jogo acabou, resetando..........');
   rollDice();
   document.querySelector('.number').textContent = '?';
   // starGame();
@@ -77,14 +72,11 @@ function resetGame() {
   guess = 0;
   score = 20;
   document.querySelector('.score').textContent = score;
-  console.log(`Score: ${score}, Guess: ${guess}, GameEnd?: ${gameEnd}`);
-  console.log(localStorage);
 }
 
 // Needs to perssit a local storage when the page is reloaded in order to keep record of the highscore.
 function cleanScore() {
   localStorage.clear();
-  console.log('storage limpo');
 }
 
 /*
