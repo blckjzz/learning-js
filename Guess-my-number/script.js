@@ -23,7 +23,6 @@ function verifyWin(guess, dice) {
   if (guess === dice) {
     // Won the game .number
     document.querySelector('.message').textContent = 'You win!';
-
     // set background-collor to green when player win's the game.
     // document.querySelector('body').style.backgroundColor = '#60b347';
     document.querySelector('.number').textContent = dice;
