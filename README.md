@@ -1,1 +1,1 @@
-This is my
+This is the reposoritory used for my current learnings of JavaScript[ _The Complete JavaScript Course 2024: From Zero to Expert!_ ]([url](https://www.udemy.com/course/the-complete-javascript-course/?couponCode=MTST7102224A2)) from Jonas Schmedtmann at Udemy
