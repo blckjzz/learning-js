@@ -103,10 +103,16 @@ const usdToEuro = 0.9;
 
 const euroToUsdTransactions = movements.map(mov => mov * euroToUsd);
 
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sorted = false) {
   // console.log(movement);
+
   containerMovements.innerHTML = '';
-  movements.forEach((movement, i) => {
+
+  const movs = sorted
+    ? currentAccount.movements.slice().sort((a, b) => a - b)
+    : movements;
+
+  movs.forEach((movement, i) => {
     const type = movement > 0 ? 'deposit' : 'withdrawal';
     const html = `
                 <div class="movements__row">
@@ -117,6 +123,12 @@ const displayMovements = function (movements) {
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
+let sorted = false;
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  displayMovements(currentAccount.movements, sorted);
+  sorted = !sorted;
+});
 
 const accountHistory = movements.map(
   (mov, i) => `${i + 1} # you ${mov > 0 ? 'deposited' : 'withdrew'}: ${mov}`
@@ -168,6 +180,14 @@ const displayBalance = function (movements) {
 // console.log(accounts.find(acc => acc.username === login));
 // add event listener to form
 
+const updateUI = () => {
+  displayMovements(currentAccount.movements);
+  // display summary
+  displaySumary(currentAccount);
+  // display current balance
+  displayBalance(currentAccount.movements);
+};
+
 let promptPasswd;
 let promptLogin;
 let currentAccount;
@@ -182,7 +202,7 @@ btnLogin.addEventListener('click', function (event) {
   // check input and compare with accounts
   if (currentAccount?.pin === promptPasswd) {
     // correct, login.
-    console.log(currentAccount);
+    // console.log(currentAccount);
     console.log(
       `credentials correct, welcome ${currentAccount.owner.split(' ')[0]}!`
     );
@@ -196,11 +216,7 @@ btnLogin.addEventListener('click', function (event) {
 
     // display movements
     containerApp.style.opacity = 100;
-    displayMovements(currentAccount.movements);
-    // display summary
-    displaySumary(currentAccount);
-    // display current balance
-    displayBalance(currentAccount.movements);
+    updateUI();
   } else {
     console.log(`wrong credentials. try again!`);
   }
@@ -212,12 +228,16 @@ const calculateBalance = account => {
   return account.movements.reduce((sum, curr, i, arr) => sum + curr);
   // console.log(`current balance of ${account.username} is: ${balance} x`);
 };
-// console.log('conta atual:');
-// console.log(currentAccount);
-// console.log('-----------');
-// let balance = calculateBalance(currentAccount);
 
-// money transfer
+const verifyAccount = (account, account2, pin) => {
+  let acc = accounts.find(account => account.username === account2);
+  if (acc.pin === pin) {
+    return acc;
+  } else {
+    return null;
+  }
+};
+
 btnTransfer.addEventListener('click', function (e) {
   e.preventDefault();
   // console.log(currentAccount);
@@ -226,41 +246,168 @@ btnTransfer.addEventListener('click', function (e) {
   console.log(`Destination: ${NumberAccountDestination} # value: ${amount}`);
   let balance = calculateBalance(currentAccount);
   console.log(`current balance of ${currentAccount.username} is: ${balance}`);
+  let destinationAccount = accounts.find(
+    account => account.username === NumberAccountDestination
+  );
   // verify if the sender has enough balance
-  if (balance > 0 && balance >= amount) {
-    // verify if the destination account exists;
-    let destinationAccount = accounts.find(
-      account => account.username === NumberAccountDestination
-    );
-    console.log(
-      `You want to send ${amount} to ${destinationAccount.owner}, with the username: ${destinationAccount.username}?`
-    );
-    console.log(
-      `The value of: ${amount * -1} will be deducted from your balance.`
-    );
-    console.log(
-      `The value of: ${amount} will added to ${destinationAccount.owner}'s balance.`
-    );
-    // deduct the value from current account (sender)
-    currentAccount.movements.push(amount * -1);
-    // add amount to destination account (recipient)
-    destinationAccount.movements.push(amount);
-    console.log(
-      `now your current balance is: ${calculateBalance(currentAccount)}`
-    );
-    displayMovements(currentAccount.movements);
-    // display summary
-    displaySumary(currentAccount);
-    // display current balance
-    displayBalance(currentAccount.movements);
+  console.log(currentAccount.pin !== destinationAccount.pin ? 'yes' : 'no');
+  if (currentAccount.pin !== destinationAccount.pin) {
+    // only if sender and destination are different, otherwise, block it.
+    if (balance > 0 && balance >= amount && destinationAccount?.pin) {
+      // verify if the destination account exists;
+
+      confirm(
+        `You want to send ${amount} to ${destinationAccount.owner}, with the username: ${destinationAccount.username}?`
+      );
+      // console.log(
+      //   `The value of: ${amount * -1} will be deducted from your balance.`
+      // );
+      alert(
+        `The value of: ${amount} will added to ${destinationAccount.owner}'s balance.`
+      );
+      // deduct the value from current account (sender)
+      currentAccount.movements.push(amount * -1);
+      // add amount to destination account (recipient)
+      destinationAccount.movements.push(amount);
+      console.log(
+        `now your current balance is: ${calculateBalance(currentAccount)}`
+      );
+      updateUI();
+    } else {
+      console.log(
+        `The amount can not be transfered. Check if the account you want to send exists.`
+      );
+      console.log(
+        `The current balance is ${balance} and amount you want to transfer is: ${amount}`
+      );
+    }
+
+    // verify if account exits
+    // send the money
+    // deduct the money from balance
   } else {
-    console.log(
-      `The amount can not be transfered. The current balance is ${balance} and amount you want to transfer is: ${amount}`
+    alert(`The destination account can not be yourself.`);
+    inputTransferTo.blur();
+  }
+});
+// let transferDestination = ;
+
+// remove account
+// check if the account to be removed belong to the current logged user
+// check if given pin matches the account's pin
+// remove account from the array of accounts
+
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+  console.log('clicked');
+  console.log(inputCloseUsername.value);
+  console.log(inputClosePin.value);
+
+  let acc = verifyAccount(
+    currentAccount,
+    inputCloseUsername.value,
+    Number(inputClosePin.value)
+  );
+
+  let indexAccountToRemove = accounts.findIndex(
+    arr => arr.username === acc.username
+  );
+
+  // console.log(acc.username === accountToRemove);
+  console.log(indexAccountToRemove);
+
+  accounts.splice(indexAccountToRemove, 1);
+  alert(`The ${acc.username} was removed!`);
+  inputCloseUsername.value = inputClosePin.value = '';
+  containerApp.style.opacity = 0;
+  labelWelcome.textContent = 'Log in to get started';
+});
+
+// loan request
+
+btnLoan.addEventListener('click', function (e) {
+  // check if the amount request is 10% of any deposit ever made by the current user
+  // if yes, loan will be approved.
+  // if no, denied.
+
+  e.preventDefault();
+  console.log(inputLoanAmount.value);
+  let loan = Number(inputLoanAmount.value);
+  let isLoanApproved = currentAccount.movements.some(mov => mov >= loan * 0.1);
+  if (isLoanApproved) {
+    currentAccount.movements.push(loan);
+    updateUI();
+  } else {
+    alert(
+      `You might try requesting a lower value, up to: ${
+        Math.max(...currentAccount.movements) * 10
+      }`
     );
   }
 
-  // verify if account exits
-  // send the money
-  // deduct the money from balance
+  // const deposit = mov => mov > 0;
+
+  // console.log(currentAccount.movements.find(deposit));
+  // console.log(currentAccount.movements.some(deposit));
+  // console.log(currentAccount.movements.every(deposit));
 });
-// let transferDestination = ;
+
+// flat and flatmap
+
+accounts.flatMap(mov => mov.movements).reduce((sum, arr) => sum + arr);
+//
+
+///////////////////////////////////////
+// Coding Challenge #4
+
+const dogs = [
+  { weight: 22, curFood: 250, owners: ['Alice', 'Bob'] },
+  { weight: 8, curFood: 200, owners: ['Matilda'] },
+  { weight: 13, curFood: 275, owners: ['Sarah', 'John'] },
+  { weight: 32, curFood: 340, owners: ['Michael'] },
+];
+
+// Julia and Kate are still studying dogs, and this time they are studying if dogs are eating too much or too little.
+// Eating too much means the dog's current food portion is larger than the recommended portion, and eating too little is the opposite.
+// Eating an okay amount means the dog's current food portion is within a range 10% above and 10% below the recommended portion (see hint).
+
+// 1. Loop over the array containing dog objects, and for each dog, calculate the recommended food portion and add it to the object as a new property. Do NOT create a new array, simply loop over the array. Forumla: recommendedFood = weight ** 0.75 * 28. (The result is in grams of food, and the weight needs to be in kg)
+
+dogs.forEach(dog => (dog.recommendedFood = dog.weight ** 0.75 * 28));
+
+// console.log(dogs);
+
+// 2. Find Sarah's dog and log to the console whether it's eating too much or too little. HINT: Some dogs have multiple owners, so you first need to find Sarah in the owners array, and so this one is a bit tricky (on purpose) 🤓
+
+// console.log(dogs.find(dog => dog.owners.includes('Sarah')));
+
+// 3. Create an array containing all owners of dogs who eat too much ('ownersEatTooMuch') and an array with all owners of dogs who eat too little ('ownersEatTooLittle').
+let toolitle = [];
+let toomuch = [];
+console.log(
+  dogs.map(dog => {
+    if (dog.curFood > dog.recommendedFood * 0.9) {
+      toomuch.push(dog.owners);
+    } else if (dog.curFood < dog.recommendedFood * 1.1) {
+      toolitle.push(dog.owners);
+    }
+  })
+);
+
+console.log({ toolitle, toomuch });
+
+console.log(toolitle.flat());
+
+// 4. Log a string to the console for each array created in 3., like this: "Matilda and Alice and Bob's dogs eat too much!" and "Sarah and John and Michael's dogs eat too little!"
+// 5. Log to the console whether there is any dog eating EXACTLY the amount of food that is recommended (just true or false)
+// 6. Log to the console whether there is any dog eating an OKAY amount of food (just true or false)
+// 7. Create an array containing the dogs that are eating an OKAY amount of food (try to reuse the condition used in 6.)
+// 8. Create a shallow copy of the dogs array and sort it by recommended food portion in an ascending order (keep in mind that the portions are inside the array's objects)
+
+// HINT 1: Use many different tools to solve these challenges, you can use the summary lecture to choose between them 😉
+// HINT 2: Being within a range 10% above and below the recommended portion means: current > (recommended * 0.90) && current < (recommended * 1.10). Basically, the current portion should be between 90% and 110% of the recommended portion.
+
+// TEST DATA:
+
+// GOOD LUCK 😀
+// */
