@@ -83,6 +83,10 @@ nav {
   color: #777;
 }
 
+.hide {
+  opacity: 0;
+}
+
 /* MAIN */
 .app {
   position: relative;
