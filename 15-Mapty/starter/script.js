@@ -30,7 +30,29 @@ if (navigator.geolocation)
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(map);
 
-      L.marker(coordinates).addTo(map).bindPopup('Your first pin!').openPopup();
+      map.on('click', function (eventMap) {
+        console.log(eventMap);
+        const { lat, lng } = eventMap.latlng;
+        console.log(lat, lng);
+
+        let type = 'running-popup';
+        type = type ? 'running-popup' : 'cycling-popup';
+
+        L.marker([lat, lng])
+          .addTo(map)
+          .bindPopup(
+            L.popup({
+              maxWidth: 250,
+              minWidth: 150,
+              autoClose: false,
+              closeOnClick: false,
+              className: type,
+              content: `<p>${type}</p>`,
+            })
+          )
+          //   .setPopupContent('Hello world!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+          .openPopup();
+      });
     },
     () =>
       alert(
