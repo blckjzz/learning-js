@@ -18,7 +18,9 @@ const renderCountryHtml = (data, className = '') => {
             <p class="country__row"><span>👫</span>${(
               +data.population / 1000000
             ).toFixed(1)}</p>
-            <p class="country__row"><span>🗣️</span>${data.languages[0].name}</p>
+            <p class="country__row"><span>🗣️</span>${
+              data.languages[0]?.name
+            }</p>
             <p class="country__row"><span>💰</span>${
               data.currencies[0].name
             }</p>
@@ -315,7 +317,7 @@ const getPosition = function () {
 };
 
 // btn.addEventListener('click', alert('asdasdsadas'));
-btn.addEventListener('click', locateMe);
+// btn.addEventListener('click', locateMe);
 
 // TEST COORDINATES 1: 52.508, 13.381 (Latitude, Longitude)
 // TEST COORDINATES 2: 19.037, 72.873
@@ -371,26 +373,167 @@ const loadImage = imgPath => {
   });
 };
 
-let currentImg = '';
-loadImage('img/img-1.jpg')
-  .then(img => {
-    currentImg = img;
-    console.log('loading image.');
-    return wait(2); // waits two seconds
-  })
-  .then(() => {
-    console.log('remove background');
-    currentImg.style.display = 'none';
-    return loadImage('img/img-2.jpg');
-  })
-  .then(img => {
-    currentImg = img;
-    console.log('after two seconds this is img promise');
-    return wait(2);
-  })
-  .then(() => {
-    console.log('loading image2.');
-    console.log(currentImg);
-    console.log('remove background');
-    currentImg.style.display = 'none';
-  });
+// let currentImg = '';
+// loadImage('img/img-1.jpg')
+//   .then(img => {
+//     currentImg = img;
+//     console.log('loading image.');
+//     return wait(2); // waits two seconds
+//   })
+//   .then(() => {
+//     console.log('remove background');
+//     currentImg.style.display = 'none';
+//     return loadImage('img/img-2.jpg');
+//   })
+//   .then(img => {
+//     currentImg = img;
+//     console.log('after two seconds this is img promise');
+//     return wait(2);
+//   })
+//   .then(() => {
+//     console.log('loading image2.');
+//     console.log(currentImg);
+//     console.log('remove background');
+//     currentImg.style.display = 'none';
+//   });
+
+const whereAmI2 = async () => {
+  try {
+    const api_key = '600b912e6162401cb1f70065fa38fc35'; // disposable key // hardcoded
+    const position = await getPosition();
+    console.log(position.coords);
+    const { latitude: lat, longitude: lng } = position.coords;
+    const urlReverseGeoloc = `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&apiKey=${api_key}`;
+    const countryData = await fetch(urlReverseGeoloc);
+    if (!countryData.ok)
+      throw new Error('Could not fetch data from your current location.');
+    const country = await countryData.json();
+    const endpoint2 = `https://restcountries.com/v2/name/${country.features[0].properties.country}`;
+    const country2Data = await fetch(endpoint2);
+    if (!country2Data.ok)
+      throw new Error('Could not fetch data from your current location.');
+    const countryInfo = await country2Data.json();
+    renderCountryHtml(...countryInfo);
+    // console.log(countryInfo);
+    // console.log(country);
+    return `You are in: ${country.features[0].properties.city}, ${country.features[0].properties.country}`;
+  } catch (error) {
+    console.error(`${error}`);
+    renderError(`${error}`);
+  }
+};
+
+btn.addEventListener('click', whereAmI2);
+
+// console.log('1: accessing your location...');
+// (async function () {
+//   try {
+//     const city = await whereAmI2();
+//     console.log(`2. ${city}`);
+//   } catch (error) {
+//     console.error(`Something went wrong: ${error}`);
+//   }
+//   console.log(`3. Finished.`);
+// })();
+
+///////////////////////////////////////
+// Coding Challenge #3
+
+/* 
+PART 1
+Write an async function 'loadNPause' that recreates Coding Challenge #2, this time using async/await (only the part where the promise is consumed). Compare the two versions, think about the big differences, and see which one you like more.
+Don't forget to test the error handler, and to set the network speed to 'Fast 3G' in the dev tools Network tab.
+
+PART 2
+1. Create an async function 'loadAll' that receives an array of image paths 'imgArr';
+2. Use .map to loop over the array, to load all the images with the 'createImage' 
+function (call the resulting array 'imgs')
+3. Check out the 'imgs' array in the console! Is it like you expected?
+4. Use a promise combinator function to actually 
+get the images from the array 😉
+5. Add the 'paralell' class to all the images (it has some CSS styles).
+
+TEST DATA: ['img/img-1.jpg', 'img/img-2.jpg', 'img/img-3.jpg']. To test, turn off the 'loadNPause' function.
+
+GOOD LUCK 😀
+*/
+
+const loadAll = async imgArr => {
+  try {
+    const imgs = [];
+    imgArr.map(img => {
+      imgs.push(loadImage(img));
+    });
+    // const imgs = imgArr.map(async img => await loadImage(img));
+    const result = await Promise.all(imgs);
+    console.log(result);
+    result.forEach(r => r.classList.add('parallel'));
+  } catch (err) {
+    console.error('An error occurr while loading the image:', err);
+    renderError(err);
+  }
+};
+
+loadAll(['img/img-1.jpg', 'img/img-2.jpg', 'img/img-3.jpg']);
+
+// let currentImg = '';
+// loadImage('img/img-1.jpg')
+//   .then(img => {
+//     currentImg = img;
+//     console.log('loading image.');
+//     return wait(2); // waits two seconds
+//   })
+//   .then(() => {
+//     console.log('remove background');
+//     currentImg.style.display = 'none';
+//     return loadImage('img/img-2.jpg');
+//   })
+//   .then(img => {
+//     currentImg = img;
+//     console.log('after two seconds this is img promise');
+//     return wait(2);
+//   })
+//   .then(() => {
+//     console.log('loading image2.');
+//     console.log(currentImg);
+//     console.log('remove background');
+//     currentImg.style.display = 'none';
+//   });
+
+// let currentImg = '';
+// (async function () {
+//   console.log('loading image1.');
+//   const img = await loadImage('img/img-1.jpg');
+//   await wait(2);
+//   currentImg = img;
+//   currentImg.style.display = 'none';
+//   console.log('loading image2.');
+//   const img2 = await loadImage('img/img-2.jpg');
+//   currentImg = img2;
+//   await wait(2);
+//   console.log('after two seconds this is img promise. removing image');
+//   currentImg.style.display = 'none';
+// })();
+
+// loadImage('img/img-1.jpg')
+//   .then(img => {
+//     currentImg = img;
+//     console.log('loading image.');
+//     return wait(2); // waits two seconds
+//   })
+//   .then(() => {
+//     console.log('remove background');
+//     currentImg.style.display = 'none';
+//     return loadImage('img/img-2.jpg');
+//   })
+//   .then(img => {
+//     currentImg = img;
+//     console.log('after two seconds this is img promise');
+//     return wait(2);
+//   })
+//   .then(() => {
+//     console.log('loading image2.');
+//     console.log(currentImg);
+//     console.log('remove background');
+//     currentImg.style.display = 'none';
+//   });
