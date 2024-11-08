@@ -1,0 +1,11 @@
+.DS_Store
+.parcel-cache/
+dist/
+node_modules/
+package-lock.json
+
+
+# Ignore .DS_Store in any subdirectory
+**/.DS_Store
+
+# Ignore the .gitignore file changes in parent directories (if not needed)
