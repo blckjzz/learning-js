@@ -1,0 +1,19 @@
+{
+  "name": "starter",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "core-js": "^3.39.0",
+    "leaflet": "^1.6.0",
+    "lodash-es": "^4.17.15"
+  },
+  "devDependencies": {
+    "parcel": "^2.12.0"
+  }
+}
